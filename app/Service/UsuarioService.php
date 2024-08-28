@@ -4,36 +4,126 @@ namespace App\Service;
 
 use App\Models\Usuario;
 
-class UsuarioService 
+class UsuarioService
 {
-   public function create(array $dados){
+   public function create(array $dados)
+   {
       $user = Usuario::create([
          'nome' => $dados['nome'],
-         'email'=> $dados['email'],
-         'password'=> $dados['password'] 
+         'email' => $dados['email'],
+         'password' => $dados['password']
       ]);
 
       return $user;
-
    }
 
-   public function update(){
+   public function update(array $dados)
+   {
+      $usuario = Usuario::find($dados['id']);
 
+      if ($usuario == null) {
+         return [
+            'status' => false,
+            'message' => 'Usuário não encontrado'
+         ];
+      }
+         
+       if(isset($dados['password'])){
+         $usuario->password = $dados['password'];
+       }
+
+       if(isset($dados['nome'])){
+         $usuario->nome = $dados['nome'];
+       }
+
+      $usuario->nome = $dados['nome'];
+      $usuario->email = $dados['email'];
+      $usuario->password = $dados['password'];
+      $usuario->save();
+
+      return [
+         'status' => true,
+         'message' => 'Atualizado com sucesso'
+      ];
    }
 
-   public function delete(){
-
+   public function delete($id)
+   {
+      $usuario = Usuario::find($id);
+      if ($usuario == null) {
+         return [
+            'status' => false,
+            'message' => 'Usuário não encontrado'
+         ];
+      }
+      $usuario->delete();
+      return [
+         'status' => true,
+         'message' => 'Usuário excluído com sucesso'
+      ];
    }
 
-   public function findById(){
+   public function findById($id)
+   {
+      $usuario = Usuario::find($id);
 
+      if ($usuario == null) {
+         return [
+            'status' => false,
+            'message' => 'Usuario  não encontrado',
+         ];
+      }
+
+      return [
+         'status' => true,
+         'message' => 'Usuario encontrado',
+         'data' => $usuario
+      ];
    }
 
-   public function getAll(){
+   public function getAll()
+   {
+      $usuarios = Usuario::all();
 
+      return [
+         'status' => 'true',
+         'message' => 'Usuario encontrado',
+         'data' => $usuarios
+
+      ];
    }
 
-   public function serchByName(){
-    
+   public function searchByName($nome)
+   {
+      $usuarios = Usuario::where('nome', 'like', '%' . $nome . '%')->get();
+
+      if ($usuarios->isEmpty()) {
+         return [
+            'status' => false,
+            'message' => 'sem Resultados'
+         ];
+      }
+      return [
+         'status' => true,
+         'message' => 'Resultado Encontrados',
+         'data' => $usuarios
+      ];
+   }
+
+   public function searchByEmail($email)
+   {
+      $usuarios = Usuario::where('email', 'like', '%' . $email . '%')->get();
+
+      if ($usuarios->isEmpty()) {
+         return [
+            'status' => false,
+            'message' => 'sem Resultados'
+         ];
+      }
+      return [
+         'status' => true,
+         'message' => 'Resultado Encontrados',
+         'data' => $usuarios
+      ];
    }
 }
